@@ -7,12 +7,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class User
 {
-
-    private long   id;
+	private long   id;
     private String name;
     private String twitterNickname;
     private Date   joinedDate;
-
+    
     public long getId()
     {
         return id;
