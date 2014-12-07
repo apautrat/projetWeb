@@ -10,5 +10,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/DEV/mysql-connector-java-5.1.34/mysql-connector-java-5.1.34-bin.jar"/>
+	<classpathentry kind="lib" path="C:/DEV/apache-log4j-1.2.17/log4j-1.2.17.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

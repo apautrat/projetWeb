@@ -3,6 +3,8 @@ package test.isep.Model;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
 import com.mysql.jdbc.Connection;
 
 public class DatabaseConnection {
@@ -13,23 +15,33 @@ public class DatabaseConnection {
 
     private static Connection connect;
 
-    private DatabaseConnection() {
-        try {
-            Class.forName( "com.mysql.jdbc.Driver" );
-        } catch ( ClassNotFoundException e ) {
+    static Logger log = Logger.getLogger(DatabaseConnection.class);
 
+    private DatabaseConnection() 
+    {
+        try 
+        {
+            Class.forName( "com.mysql.jdbc.Driver" );
+        } 
+        catch ( ClassNotFoundException e ) 
+        {
             e.getMessage();
         }
-        try {
+        try 
+        {
             connect = (Connection) DriverManager.getConnection( url, user, passwd );
-            System.out.println( "Connection to the DB is a success! powered by Log4J" );
-        } catch ( SQLException e ) {
+            log.info( "Connection to the DB is a success! powered by Log4J" );
+        } 
+        catch ( SQLException e ) 
+        {
             e.printStackTrace();
         }
     }
 
-    public static Connection getInstance() {
-        if ( connect == null ) {
+    public static Connection getInstance() 
+    {
+        if ( connect == null ) 
+        {
             new DatabaseConnection();
         }
         return connect;

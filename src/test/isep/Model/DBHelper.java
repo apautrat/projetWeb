@@ -1,6 +1,5 @@
 package test.isep.Model;
 
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -9,39 +8,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.mysql.jdbc.Connection;
+import org.apache.log4j.Logger;
+
 import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.Statement;
 
 public class DBHelper
-{
-    private static String     DBURL      = "jdbc:mysql://localhost/projetweb";
-    private static String     DBLOGIN    = "root";
-    private static String     DBPASSWORD = "";
-
-    private static Connection conn       = null;
-
-    public static boolean connection()
-    {
-        try {
-            Class.forName( "com.mysql.jdbc.Driver" );
-        } catch ( ClassNotFoundException e ) {
-            e.printStackTrace();
-            return false;
-        }
-        try
-        {
-            // Get a connection to the DB
-            conn = (Connection) DriverManager.getConnection( DBURL, DBLOGIN, DBPASSWORD );
-            System.out.println( "Connection to the DB is a success!" );
-            return true;
-        } catch ( Exception e )
-        {
-            System.err.println( "Connection to the DB has failed! See why below: " );
-            e.printStackTrace();
-            return false;
-        }
-    }
+{   
+    static Logger log = Logger.getLogger(DBHelper.class);
 
     public static List<User> getUsers()
     {
@@ -50,50 +24,47 @@ public class DBHelper
         Statement stmt = null;
         ResultSet rset = null;
 
-        if ( connection() )
-        {
-            try
-            {
-                // Execute query and retrieve results
-                stmt = (Statement) conn.createStatement();
-                rset = stmt.executeQuery( "SELECT * FROM user" );
+        try 
+        {            
+            DatabaseConnection.getInstance().setAutoCommit(false);
+        	
+            // Execute query and retrieve results
+            stmt = (Statement) DatabaseConnection.getInstance().createStatement();
+            rset = stmt.executeQuery( "SELECT * FROM user" );
 
-                // Analyse results
-                while ( rset.next() )
+            // Analyse results
+            while ( rset.next() )
+            {
+            	User newUser = createUser(
+            			rset.getLong( "id" ),
+            			rset.getString( "name" ), 
+            			rset.getString( "twitterNickname" ), 
+            			rset.getDate( "joinedDate" ));
+            	
+                users.add( newUser );
+                log.info("User found: " + newUser.getName());;
+            }
+        } 
+        catch ( SQLException e ) 
+        {
+        	log.warn("Prepared request has failed, see why below : ");
+            e.printStackTrace();
+        } 
+        finally 
+        {
+            try 
+            {
+                if ( DatabaseConnection.getInstance() != null ) 
                 {
-                	User newUser = createUser(
-                			rset.getLong( "id" ),
-                			rset.getString( "name" ), 
-                			rset.getString( "twitterNickname" ), 
-                			rset.getDate( "joinedDate" ));
-                	
-                    users.add( newUser );
-                    System.out.println( "User found: " + newUser.getName() );
+                    DatabaseConnection.getInstance().close();
                 }
-            } catch ( SQLException e )
+            } catch ( SQLException e ) 
             {
                 e.printStackTrace();
-            } finally
-            {
-                try {
-                    if ( rset != null )
-                        rset.close();
-                } catch ( Exception e ) {
-                    e.printStackTrace();
-                }
-                try {
-                    if ( stmt != null )
-                        rset.close();
-                } catch ( Exception e ) {
-                    e.printStackTrace();
-                }
             }
-
-            System.out.println( "Found a total of " + users.size() + " user(s)." );
-            return users;
         }
-        else
-            return null;
+        log.info( "Found a total of " + users.size() + " user(s)." );
+        return users;    
     }
 
     public static List<Tweet> getTweets( long userId )
@@ -103,50 +74,47 @@ public class DBHelper
         Statement stmt = null;
         ResultSet rset = null;
 
-        if ( connection() )
-        {
-            try
+        try 
+        {            
+            DatabaseConnection.getInstance().setAutoCommit(false);
+        	
+            // Execute query and retrieve results
+            stmt = (Statement) DatabaseConnection.getInstance().createStatement();
+            rset = stmt.executeQuery( "SELECT * FROM user" );
+
+            // Analyse results
+            while ( rset.next() )
             {
-                // Execute query and retrieve results
-                stmt = (Statement) conn.createStatement();
-                rset = stmt.executeQuery( "SELECT * FROM tweet WHERE authorId = " + userId );
+                Tweet newTweet = createTweet(
+                		rset.getLong( "tweetId" ),
+                		rset.getLong( "authorId" ),
+                		rset.getString( "message" ),
+                		rset.getDate( "date" ));
 
-                // Analyse results
-                while ( rset.next() )
+                tweets.add( newTweet );
+                log.info( "Tweet found: " + newTweet.getTweetId() );
+            }
+        } 
+        catch ( SQLException e ) 
+        {
+        	log.warn( "Prepared request has failed, see why below : " );
+            e.printStackTrace();
+        } 
+        finally 
+        {
+            try 
+            {
+                if ( DatabaseConnection.getInstance() != null ) 
                 {
-                    Tweet newTweet = createTweet(
-                    		rset.getLong( "tweetId" ),
-                    		rset.getLong( "authorId" ),
-                    		rset.getString( "message" ),
-                    		rset.getDate( "date" ));
-
-                    tweets.add( newTweet );
-                    System.out.println( "Tweet found: " + newTweet.getTweetId() );
+                    DatabaseConnection.getInstance().close();
                 }
-            } catch ( SQLException e )
+            } catch ( SQLException e ) 
             {
                 e.printStackTrace();
-            } finally
-            {
-                try {
-                    if ( rset != null )
-                        rset.close();
-                } catch ( Exception e ) {
-                    e.printStackTrace();
-                }
-                try {
-                    if ( stmt != null )
-                        rset.close();
-                } catch ( Exception e ) {
-                    e.printStackTrace();
-                }
             }
-
-            System.out.println( "Found a total of " + tweets.size() + " tweet(s)." );
-            return tweets;
         }
-        else
-            return null;
+        log.info( "Found a total of " + tweets.size() + " tweet(s)." );
+        return tweets; 
     }
 
     public static List<Tweet> getTweets( String nickname )
@@ -155,54 +123,51 @@ public class DBHelper
 
         Statement stmt = null;
         ResultSet rset = null;
+        
+        try 
+        {            
+            DatabaseConnection.getInstance().setAutoCommit(false);
+        	
+            // Execute query and retrieve results
+            stmt = (Statement) DatabaseConnection.getInstance().createStatement();
+            rset = stmt.executeQuery( "SELECT * FROM tweet, user "
+                    + "WHERE tweet.authorId = user.Id "
+                    + "AND user.twitterNickname = '"
+                    + nickname + "'" );
 
-        if ( connection() )
-        {
-            try
+            // Analyse results
+            while ( rset.next() )
             {
-                // Execute query and retrieve results
-                stmt = (Statement) conn.createStatement();
-                rset = stmt.executeQuery( "SELECT * FROM tweet, user "
-                        + "WHERE tweet.authorId = user.Id "
-                        + "AND user.twitterNickname = '"
-                        + nickname + "'" );
+                Tweet newTweet = createTweet(
+                		rset.getLong( "tweetId" ),
+                		rset.getLong( "authorId" ),
+                		rset.getString( "message" ),
+                		rset.getDate( "date" ));
 
-                // Analyse results
-                while ( rset.next() )
+                tweets.add( newTweet );
+                log.info( "Tweet found: " + newTweet.getTweetId() );
+            }
+        } 
+        catch ( SQLException e ) 
+        {
+        	log.warn( "Prepared request has failed, see why below : " );
+            e.printStackTrace();
+        } 
+        finally 
+        {
+            try 
+            {
+                if ( DatabaseConnection.getInstance() != null ) 
                 {
-                    Tweet newTweet = createTweet(
-                    		rset.getLong( "tweetId" ),
-                    		rset.getLong( "authorId" ),
-                    		rset.getString( "message" ),
-                    		rset.getDate( "date" ));
-
-                    tweets.add( newTweet );
-                    System.out.println( "Tweet found: " + newTweet.getTweetId() );
+                    DatabaseConnection.getInstance().close();
                 }
-            } catch ( SQLException e )
+            } catch ( SQLException e ) 
             {
                 e.printStackTrace();
-            } finally
-            {
-                try {
-                    if ( rset != null )
-                        rset.close();
-                } catch ( Exception e ) {
-                    e.printStackTrace();
-                }
-                try {
-                    if ( stmt != null )
-                        rset.close();
-                } catch ( Exception e ) {
-                    e.printStackTrace();
-                }
             }
-
-            System.out.println( "Found a total of " + tweets.size() + " tweet(s)." );
-            return tweets;
         }
-        else
-            return null;
+        log.info( "Found a total of " + tweets.size() + " tweet(s)." );
+        return tweets;
     }
 
     public static User createUser(long id, String name, String twitterNickname, Date joinedDate)
@@ -224,7 +189,6 @@ public class DBHelper
         newTweet.setDate(date);
         return newTweet;
     }
-    
     
     public static void updateData()
     {
@@ -267,7 +231,7 @@ public class DBHelper
                 preparedStatement.setString(2, currentUser.getName());
                 preparedStatement.setString(3, currentUser.getTwitterNickname());
                 
-                System.out.println("Ajout du user: " + currentUser.getName() + ".");
+                log.info("Ajout du user: " + currentUser.getName() + ".");
 
                 preparedStatement.executeUpdate();
                 DatabaseConnection.getInstance().commit();
@@ -285,7 +249,7 @@ public class DBHelper
                 preparedStatement.setLong(2, currentTweet.getAuthorId());
                 preparedStatement.setString(3, currentTweet.getMessage());
                 
-                System.out.println("Ajout du tweet: " + currentTweet.getMessage() + ".");
+                log.info("Ajout du tweet: " + currentTweet.getMessage() + ".");
 
                 preparedStatement.executeUpdate();
                 DatabaseConnection.getInstance().commit();
@@ -294,7 +258,7 @@ public class DBHelper
         } 
         catch ( SQLException e ) 
         {
-            System.out.println( "Prepared request has failed, see why below : " );
+        	log.info( "Prepared request has failed, see why below : " );
             e.printStackTrace();
         } 
         finally 
@@ -309,37 +273,7 @@ public class DBHelper
             {
                 e.printStackTrace();
             }
-        }    	
+        }
 
     }
-
-    /*public static void updateTableUser( String[][] tab ) {
-        try {
-
-            DatabaseConnection.getInstance().setAutoCommit( false );
-            for ( int i = 0; i < 3; i++ ) {// rendre dynamique le 3
-                PreparedStatement prepraredStatement = (PreparedStatement) DatabaseConnection.getInstance().prepareStatement( "INSERT INTO user (name,twitterNickname,joinedDate) VALUES(?,?,?);" );
-                System.out.println( "requete : " + i );
-
-                for ( int j = 0; j < 3; j++ ) {
-                    System.out.println( "parametre : " + j );
-                    prepraredStatement.setString( j + 1, tab[i][j] );
-                }
-                prepraredStatement.executeUpdate();
-                DatabaseConnection.getInstance().commit();
-            }
-
-        } catch ( SQLException e ) {
-            System.out.println( "La requete preparee a foire : " );
-            e.printStackTrace();
-        } finally {
-            try {
-                if ( DatabaseConnection.getInstance() != null ) {
-                    DatabaseConnection.getInstance().close();
-                }
-            } catch ( SQLException e ) {
-                e.printStackTrace();
-            }
-        }
-    }*/
 }
