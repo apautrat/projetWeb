@@ -50,7 +50,7 @@ public class DBHelper
         	log.warn("Prepared request has failed, see why below : ");
             e.printStackTrace();
         } 
-        finally 
+        /*finally 
         {
             try 
             {
@@ -62,11 +62,62 @@ public class DBHelper
             {
                 e.printStackTrace();
             }
-        }
+        }*/
         log.info( "Found a total of " + users.size() + " user(s)." );
         return users;    
     }
 
+    public static List<Tweet> getTweets()
+    {
+        List<Tweet> tweets = new ArrayList<Tweet>();
+
+        Statement stmt = null;
+        ResultSet rset = null;
+
+        try 
+        {            
+            DatabaseConnection.getInstance().setAutoCommit(false);
+        	
+            // Execute query and retrieve results
+            stmt = (Statement) DatabaseConnection.getInstance().createStatement();
+            rset = stmt.executeQuery( "SELECT * FROM tweet" );
+
+            // Analyse results
+            while ( rset.next() )
+            {
+                Tweet newTweet = createTweet(
+                		rset.getLong( "tweetId" ),
+                		rset.getLong( "authorId" ),
+                		rset.getString( "message" ),
+                		rset.getDate( "date" ));
+            	
+                tweets.add( newTweet );
+                log.info("Tweet found: " + newTweet.getMessage());;
+            }
+        } 
+        catch ( SQLException e ) 
+        {
+        	log.warn("Prepared request has failed, see why below : ");
+            e.printStackTrace();
+        } 
+        /*finally 
+        {
+            try 
+            {
+                if ( DatabaseConnection.getInstance() != null ) 
+                {
+                    DatabaseConnection.getInstance().close();
+                }
+            } catch ( SQLException e ) 
+            {
+                e.printStackTrace();
+            }
+        }*/
+        log.info( "Found a total of " + tweets.size() + " tweet(s)." );
+        return tweets;    
+    }
+
+    
     public static List<Tweet> getTweets( long userId )
     {
         List<Tweet> tweets = new ArrayList<Tweet>();
@@ -80,7 +131,7 @@ public class DBHelper
         	
             // Execute query and retrieve results
             stmt = (Statement) DatabaseConnection.getInstance().createStatement();
-            rset = stmt.executeQuery( "SELECT * FROM user" );
+            rset = stmt.executeQuery( "SELECT * FROM tweet WHERE authorId = " + userId );
 
             // Analyse results
             while ( rset.next() )
@@ -100,7 +151,7 @@ public class DBHelper
         	log.warn( "Prepared request has failed, see why below : " );
             e.printStackTrace();
         } 
-        finally 
+        /*finally 
         {
             try 
             {
@@ -112,7 +163,7 @@ public class DBHelper
             {
                 e.printStackTrace();
             }
-        }
+        }*/
         log.info( "Found a total of " + tweets.size() + " tweet(s)." );
         return tweets; 
     }
@@ -153,7 +204,7 @@ public class DBHelper
         	log.warn( "Prepared request has failed, see why below : " );
             e.printStackTrace();
         } 
-        finally 
+        /*finally 
         {
             try 
             {
@@ -165,7 +216,7 @@ public class DBHelper
             {
                 e.printStackTrace();
             }
-        }
+        }*/
         log.info( "Found a total of " + tweets.size() + " tweet(s)." );
         return tweets;
     }

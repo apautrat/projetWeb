@@ -37,6 +37,14 @@ public class RESTResource
     {
         return DBHelper.getUsers();
     }
+    
+    @GET
+    @Produces( MediaType.APPLICATION_JSON )
+    @Path( "/tweets" )
+    public List<Tweet> getTweets()
+    {
+        return DBHelper.getTweets();
+    }
 
     @GET
     @Produces( MediaType.APPLICATION_JSON )
