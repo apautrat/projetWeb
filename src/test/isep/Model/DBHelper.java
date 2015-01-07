@@ -256,9 +256,10 @@ public class DBHelper
 	    	users.add(createUser(17, "apautrat", "@paut",  formatter.parse("2014-11-24 16:32:24")));
 	        
 	    	// Creation des tweets
-	    	tweets.add(createTweet(30, 17, "Je suis chef de guerre, moi. Je suis pas là pour secouer des drapeaux et jouer de la trompette !", formatter.parse("2014-11-25 15:06:25")));
-	    	tweets.add(createTweet(31, 16, "Elle est où la poulette?", formatter.parse("2014-11-25 15:06:25")));
-	    	tweets.add(createTweet(32, 15, "Le Graal, je sais pas où il est mais il va y rester un moment, c'est moi qui vous l'dis !", formatter.parse("2014-11-25 15:06:25"))); 
+	    	tweets.add(createTweet(30, 17, "Je suis chef de guerre, moi. Je suis pas là pour secouer des drapeaux et jouer de la trompette !", formatter.parse("2014-09-05 17:06:25")));
+	    	tweets.add(createTweet(31, 16, "Elle est où la poulette?", formatter.parse("2014-11-29 18:16:25")));
+	    	tweets.add(createTweet(32, 16, "Ceci est un tweet, oui, oui!", formatter.parse("2014-11-29 18:16:25")));
+	    	tweets.add(createTweet(33, 15, "Le Graal, je sais pas où il est mais il va y rester un moment, c'est moi qui vous l'dis !", formatter.parse("2013-12-13 15:26:25"))); 
 		} 
     	catch (ParseException e1) 
 		{
@@ -312,7 +313,7 @@ public class DBHelper
         	log.info( "Prepared request has failed, see why below : " );
             e.printStackTrace();
         } 
-        finally 
+        /*finally 
         {
             try 
             {
@@ -324,7 +325,6 @@ public class DBHelper
             {
                 e.printStackTrace();
             }
-        }
-
+        }*/
     }
 }

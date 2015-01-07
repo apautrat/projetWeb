@@ -15,21 +15,6 @@ import test.isep.Model.User;
 @Path( "/res" )
 public class RESTResource
 {
-    /*
-     * @GET
-     * 
-     * @Produces(MediaType.TEXT_PLAIN) public String testText() { return
-     * "just a text test"; }
-     * 
-     * @GET
-     * 
-     * @Produces(MediaType.TEXT_XML)
-     * 
-     * @Path("/resxml") public RESTObject testObjectXML() { RESTObject obj = new
-     * RESTObject(); obj.setAuthor("Asimov"); obj.setTitle("Foundation"); return
-     * obj; }
-     */
-
     @GET
     @Produces( MediaType.APPLICATION_JSON )
     @Path( "/users" )
@@ -63,7 +48,7 @@ public class RESTResource
     }
 
     @GET
-    @Path( "/update" )
+    @Path( "/updatedata" )
     public void updateData()
     {
         DBHelper.updateData();
