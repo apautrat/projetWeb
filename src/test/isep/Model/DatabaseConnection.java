@@ -30,7 +30,7 @@ public class DatabaseConnection {
         try 
         {
             connect = (Connection) DriverManager.getConnection( url, user, passwd );
-            log.info( "Connection to the DB is a success! powered by Log4J" );
+            log.info( "Connection to the DB is a success!" );
         } 
         catch ( SQLException e ) 
         {
